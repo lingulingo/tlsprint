@@ -3,6 +3,29 @@
 All notable changes to tlsprint are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [v1.0.4] - 2026-09-28
+
+模块标签：`v1.0.4`（根模块，含 preset 数据）、`utls/v1.0.1`、`client/v1.0.4`。
+`utls` 与 `client` 本次只上抬了对根模块的依赖（`v1.0.0` → `v1.0.4`）——预设数据内嵌在
+根模块里，不这样抬，`client`/`utls` 的使用者拿到的仍是旧的 47 个预设。
+
+### Added
+
+- **Presets**: `TLS_CHROME_153_MACOS_10_15_7` 和 `TLS_CHROME_154_MACOS_10_15_7`，
+  来自 `tls.peet.ws` 抓包（注册表现共 49 个；`Lookup("chrome")` 现在解析到 154）。
+  两者都由 JA3 不变量测试覆盖，并已加入 `utls` 的线上字节级回环测试。
+
+  Chrome 153/154 在**传输层与 152 完全相同**：同样的 15 个 cipher、同样的 17 个扩展
+  集合、同样的 `supported_groups`/`supported_versions`/签名算法，JA4
+  （`t13d1517h2_8daaf6152771_cb7bf5808d99`）与 Akamai HTTP/2 指纹
+  （`1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p`）逐字节一致。真正随版本变化的
+  只有 **Client Hints**：版本号，以及 Chrome 每个版本伪随机轮换的 grease 品牌名
+  （152 = `"Not?A_Brand";v="24"`、153 = `"Not_A Brand";v="8"`、
+  154 = `"Not A(Brand";v="99"`）——只能抓，无法推导。
+
+  和所有 Chrome 预设一样，线上**扩展顺序只是一个抽样**：Chrome 每次连接都会打乱，
+  所以 JA3 会变，而 JA4 / peetprint 稳定。
+
 ## [v1.0.3] - 2026-09-10
 
 模块标签：`http2/v1.0.1`、`client/v1.0.3`（`client` 现在依赖 `http2 v1.0.1`）。

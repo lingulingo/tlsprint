@@ -29,6 +29,8 @@ import (
 func TestDialAppliesFingerprint(t *testing.T) {
 	for _, name := range []string{
 		"TLS_CHROME_141",
+		"TLS_CHROME_153_MACOS_10_15_7",
+		"TLS_CHROME_154_MACOS_10_15_7",
 		"TLS_FIREFOX_145",
 		"TLS_SAFARI_26_0_1_MACOS_18_3",
 		"TLS_CURL_8_16_0",
