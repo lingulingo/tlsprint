@@ -122,7 +122,7 @@ func TestNewRegistryDuplicate(t *testing.T) {
 func TestLookupNewestVersion(t *testing.T) {
 	reg := MustBuiltin()
 	cases := map[string]string{
-		"chrome":  "154", // numeric max beats "149.0.7827.197"
+		"chrome":  "155", // numeric max beats "149.0.7827.197"
 		"firefox": "151",
 		"safari":  "26.0.1",
 		"edge":    "150",

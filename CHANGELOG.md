@@ -3,6 +3,35 @@
 All notable changes to tlsprint are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [v1.0.5] - 2026-10-09
+
+模块标签：`v1.0.5`（根模块，含 preset 数据）、`utls/v1.0.2`、`client/v1.0.5`。
+`utls` 与 `client` 本次只上抬了对根模块的依赖（`v1.0.4` → `v1.0.5`）——预设数据内嵌在
+根模块里，不这样抬，它们的使用者拿到的仍是旧的 49 个预设。
+
+### Added
+
+- **Preset**：新增 `TLS_CHROME_155_MACOS_10_15_7`（来自真实 headful `tls.peet.ws` 抓包），
+  注册表 49 → 50 个，`Lookup("chrome")` 现解析到 155。已由 JA3 不变量测试和 `utls`
+  线上字节级回环测试覆盖。
+
+  又一次确认传输层没变：cipher 列表、17 个扩展集合、`supported_groups`/
+  `supported_versions`/签名算法、JA4（`t13d1517h2_8daaf6152771_cb7bf5808d99`）与
+  Akamai HTTP/2 指纹全部与 152/153/154 一致；`51764` 载荷仍是同样的 186 字节 / 28 条目
+  （仅顺序不同）。
+
+  **这次的实质变化在请求头**：Chrome 155 的 `Accept` 增加了一个 `image/jxl`
+  （JPEG XL），插在 `image/avif` 之前——这是 152→155 这一系列里第一次出现版本号以外的
+  真实变化：
+
+  ```
+  152/153/154: …q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,…
+  155        : …q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,…
+  ```
+
+  另外 `sec-ch-ua` 的 grease 品牌名又轮换了一次：
+  `"Google Chrome";v="155", "Chromium";v="155", "Not(A:Brand";v="24"`。
+
 ## [v1.0.4] - 2026-09-28
 
 模块标签：`v1.0.4`（根模块，含 preset 数据）、`utls/v1.0.1`、`client/v1.0.4`。

@@ -385,7 +385,7 @@ TLS 指纹库大致分两类：**只有引擎**（给你一个 TLS 栈，其余�
 | **JA3** | 随机 hello | 字符串 | 字符串 | **可双向 + md5** |
 | **JA4** | 部分 | 部分 | 常缺失 | **符合规范，用其官方样例向量测试** |
 | **HTTP/2 SETTINGS/优先级/头顺序** | 无 | Go 默认（非逐字节） | C++/fork | **逐字节（fork 的 `x/net/http2`）** |
-| **预设注册表** | 硬编码 parrot | 硬编码 | 大型生成 | **49 个精选 + 可验证（JA3 不变量）+ 可复现管线** |
+| **预设注册表** | 硬编码 parrot | 硬编码 | 大型生成 | **50 个精选 + 可验证（JA3 不变量）+ 可复现管线** |
 | **API 手感** | 底层 | `NewClient().SetBrowser` | curl_cffi | **curl_cffi 风格 + 流式构建器** |
 
 **为什么选 tlsprint：**
@@ -423,6 +423,7 @@ TLS 指纹库大致分两类：**只有引擎**（给你一个 TLS 栈，其余�
 | `TLS_CHROME_152_MACOS_10_15_7` | chrome | macos | 152 |
 | `TLS_CHROME_153_MACOS_10_15_7` | chrome | macos | 153 |
 | `TLS_CHROME_154_MACOS_10_15_7` | chrome | macos | 154 |
+| `TLS_CHROME_155_MACOS_10_15_7` | chrome | macos | 155 |
 | `TLS_FIREFOX_115` | firefox | windows | 115 |
 | `TLS_FIREFOX_126` | firefox | windows | 126 |
 | `TLS_FIREFOX_135` | firefox | windows | 135 |
