@@ -3,6 +3,21 @@
 All notable changes to tlsprint are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **文档**：修正 README（中文，pkg.go.dev 渲染的那一份）里几处已过期或具误导性的内容：
+  - 「发布说明」原称四个模块路径"均为占位符"、要求读者替换成自己的命名空间、并给出
+    `utls/v0.1.0` 这类标签——而模块早已发布到 `v1.0.5`。现改为列出当前真实标签，并
+    补充两条发布要点（预设内嵌于根模块故须同步抬子模块依赖；`git push` 不会推标签）。
+  - 亮点与对比表里的预设数量 `46` → `50`。
+  - 「仓库结构」原称"三个 Go module"且表里漏了 `http2`，改为四个并补上该行。
+  - 安装段不再表述"发布到自己的命名空间"。
+
+  注意：pkg.go.dev 渲染的是**已打标签版本**里的 README，所以这些修正要在下一个标签
+  之后才会反映到 pkg.go.dev 上。
+
 ## [v1.0.5] - 2026-10-09
 
 模块标签：`v1.0.5`（根模块，含 preset 数据）、`utls/v1.0.2`、`client/v1.0.5`。

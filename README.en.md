@@ -408,16 +408,24 @@ All packages pass `go vet` and golden-vector tests; the invariant
 This repository is published at **github.com/lingulingo/tlsprint** with a
 versioned tag per module:
 
-- root: `v1.0.0`
-- `utls/`: `utls/v1.0.0`
-- `client/`: `client/v1.0.0`
-- `http2/`: `http2/v1.0.0`
+- root: `v1.0.5`
+- `utls/`: `utls/v1.0.2`
+- `client/`: `client/v1.0.5`
+- `http2/`: `http2/v1.0.1`
 
-The submodules declare their sibling dependencies at the matching version
-(`require github.com/lingulingo/tlsprint v1.0.0`, etc.) and carry a
-development-only `replace` to the local sibling, which Go ignores when the
-module is fetched. `go get github.com/lingulingo/tlsprint/client@v1.0.0`
-resolves them for consumers.
+The submodules declare their sibling dependencies at the matching version and
+carry a development-only `replace` to the local sibling, which Go ignores when
+the module is fetched. `go get github.com/lingulingo/tlsprint/client@v1.0.5`
+therefore resolves the root module, `utls` and `http2` for consumers.
+
+Two things to remember when cutting a release:
+
+1. The preset registry (`preset/data/registry.json`) is embedded in the **root**
+   module via `//go:embed`. Tagging the root alone is not enough: bump the
+   `require github.com/lingulingo/tlsprint` line in `utls/go.mod` and
+   `client/go.mod` too, or their consumers keep resolving the old presets.
+2. `git push` and `git push origin main` do **not** push tags — push them
+   explicitly, e.g. `git push origin v1.0.6 utls/v1.0.3 client/v1.0.6`.
 
 ---
 

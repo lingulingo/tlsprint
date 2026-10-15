@@ -47,9 +47,9 @@ go get github.com/lingulingo/tlsprint/utls@latest
 go get github.com/lingulingo/tlsprint/client@latest
 ```
 
-仓库内部已用 `replace` 把三个模块串好，直接 `go test ./...` 即可跑。发布到
-你自己的命名空间时，把三个 `go.mod` 里的模块路径一并替换（见
-[发布说明](#发布说明)）。
+仓库内部已用 dev-only 的 `replace` 把四个模块串好，克隆下来直接 `go test ./...`
+即可跑（`http2` 由 `client` 自动引入，一般不需要单独 `go get`）。见
+[发布说明](#发布说明)。
 
 ---
 
@@ -211,7 +211,7 @@ Response 方法（`*Response`，body 已读入内存）：
 - **真实可用的编解码**：JA3 字符串 / md5、按 [JA4 规范](https://github.com/FoxIO-LLC/ja4)
   实现并用规范自带样例向量验证的 JA4、以及字节级保真的 ClientHello **解析 ⇄
   构造**（未知扩展原样保留）。
-- **精选指纹注册表**：46 个真实 profile（Chrome / Firefox / Safari / Edge /
+- **精选指纹注册表**：50 个真实 profile（Chrome / Firefox / Safari / Edge /
   Opera / curl / OkHttp / WeChat / Charles / Reqable / Fiddler / IE /
   PowerShell），内嵌、带版本与出处，测试保证每个 profile 的列表能反推出其源
   抓包的 JA3。
@@ -231,18 +231,19 @@ Response 方法（`*Response`，body 已读入内存）：
 | GREASE | 每个引擎各自隐式规则 | 显式标记 + 符合规范的编解码 |
 | JA4 | 常常缺失或近似 | 按规范实现并以官方样例向量测试 |
 | 依赖 | 需要引擎（CGO/uTLS…） | 根模块仅标准库 |
-| 注册表 | Python 生成、庞大平铺 | 精选 46 条 + 可复现导入工具 |
+| 注册表 | Python 生成、庞大平铺 | 精选 50 条 + 可复现导入工具 |
 
 ## 仓库结构
 
-一个仓库、三个 Go module。根模块**零第三方依赖**；两个子模块分别引入
-uTLS 与 HTTP 协议栈。
+一个仓库、四个 Go module。根模块**零第三方依赖**；三个子模块分别引入 uTLS、
+HTTP/2 协议栈与 HTTP 客户端。
 
 | Module | 用途 |
 | --- | --- |
 | `github.com/lingulingo/tlsprint`（根） | `Profile` 模型、`iana` 注册表、`hello` 线格式编解码、`ja3`/`ja4`、`preset` 注册表、CLI |
 | `github.com/lingulingo/tlsprint/utls` | Profile → uTLS `ClientHelloSpec` + `Dial`/`DialByName` |
 | `github.com/lingulingo/tlsprint/client` | HTTP 客户端：带 preset 指纹的 `Get`/`Post`/... |
+| `github.com/lingulingo/tlsprint/http2` | 分叉的 `x/net/http2`，带字节级 `Fingerprint`（SETTINGS 顺序、伪头/头顺序、优先级）；被 `client` 自动引入 |
 
 根模块内部包：
 
@@ -487,10 +488,27 @@ make test-client  # client 模块测试
 
 ## 发布说明
 
-当前三个模块路径均为占位符（`github.com/lingulingo/tlsprint`、`.../utls`、
-`.../client`）。首次打 tag 前请把三个 `go.mod` 里的模块路径替换成你自己的
-命名空间后推送；子模块分别打 `utls/v0.1.0`、`client/v0.1.0` 之类的标签，
-`go get` 才能解析。
+本仓库已发布在 **github.com/lingulingo/tlsprint**，每个 module 各自打标签：
+
+| Module | 当前标签 |
+| --- | --- |
+| 根 | `v1.0.5` |
+| `utls/` | `utls/v1.0.2` |
+| `client/` | `client/v1.0.5` |
+| `http2/` | `http2/v1.0.1` |
+
+子模块用 `require` 声明兄弟模块的版本，并带一条**仅开发用**的 `replace` 指向本地
+目录——被 `go get` 拉取时 Go 会忽略它。所以
+`go get github.com/lingulingo/tlsprint/client@v1.0.5` 能自动解析出根模块、
+`utls`、`http2` 的对应版本。
+
+发新版本时注意两点：
+
+1. **预设数据（`preset/data/registry.json`）是用 `//go:embed` 内嵌在根模块里的**，
+   所以新增预设后光给根模块打标签不够——必须同时把 `utls/go.mod`、`client/go.mod`
+   里对根模块的 `require` 抬到新版本，否则它们的使用者解析到的仍是旧预设。
+2. `git push` 与 `git push origin main` **都不会推送标签**；标签要显式推：
+   `git push origin v1.0.6 utls/v1.0.3 client/v1.0.6`。
 
 ## 许可
 
