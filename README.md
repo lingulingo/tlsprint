@@ -211,7 +211,7 @@ Response 方法（`*Response`，body 已读入内存）：
 - **真实可用的编解码**：JA3 字符串 / md5、按 [JA4 规范](https://github.com/FoxIO-LLC/ja4)
   实现并用规范自带样例向量验证的 JA4、以及字节级保真的 ClientHello **解析 ⇄
   构造**（未知扩展原样保留）。
-- **精选指纹注册表**：50 个真实 profile（Chrome / Firefox / Safari / Edge /
+- **精选指纹注册表**：51 个真实 profile（Chrome / Firefox / Safari / Edge /
   Opera / curl / OkHttp / WeChat / Charles / Reqable / Fiddler / IE /
   PowerShell），内嵌、带版本与出处，测试保证每个 profile 的列表能反推出其源
   抓包的 JA3。
@@ -231,7 +231,7 @@ Response 方法（`*Response`，body 已读入内存）：
 | GREASE | 每个引擎各自隐式规则 | 显式标记 + 符合规范的编解码 |
 | JA4 | 常常缺失或近似 | 按规范实现并以官方样例向量测试 |
 | 依赖 | 需要引擎（CGO/uTLS…） | 根模块仅标准库 |
-| 注册表 | Python 生成、庞大平铺 | 精选 50 条 + 可复现导入工具 |
+| 注册表 | Python 生成、庞大平铺 | 精选 51 条 + 可复现导入工具 |
 
 ## 仓库结构
 
@@ -386,7 +386,7 @@ TLS 指纹库大致分两类：**只有引擎**（给你一个 TLS 栈，其余�
 | **JA3** | 随机 hello | 字符串 | 字符串 | **可双向 + md5** |
 | **JA4** | 部分 | 部分 | 常缺失 | **符合规范，用其官方样例向量测试** |
 | **HTTP/2 SETTINGS/优先级/头顺序** | 无 | Go 默认（非逐字节） | C++/fork | **逐字节（fork 的 `x/net/http2`）** |
-| **预设注册表** | 硬编码 parrot | 硬编码 | 大型生成 | **50 个精选 + 可验证（JA3 不变量）+ 可复现管线** |
+| **预设注册表** | 硬编码 parrot | 硬编码 | 大型生成 | **51 个精选 + 可验证（JA3 不变量）+ 可复现管线** |
 | **API 手感** | 底层 | `NewClient().SetBrowser` | curl_cffi | **curl_cffi 风格 + 流式构建器** |
 
 **为什么选 tlsprint：**
@@ -425,6 +425,7 @@ TLS 指纹库大致分两类：**只有引擎**（给你一个 TLS 栈，其余�
 | `TLS_CHROME_153_MACOS_10_15_7` | chrome | macos | 153 |
 | `TLS_CHROME_154_MACOS_10_15_7` | chrome | macos | 154 |
 | `TLS_CHROME_155_MACOS_10_15_7` | chrome | macos | 155 |
+| `TLS_CHROME_156_MACOS_10_15_7` | chrome | macos | 156 |
 | `TLS_FIREFOX_115` | firefox | windows | 115 |
 | `TLS_FIREFOX_126` | firefox | windows | 126 |
 | `TLS_FIREFOX_135` | firefox | windows | 135 |

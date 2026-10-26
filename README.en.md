@@ -20,7 +20,7 @@ HTTP/2 fingerprint · anti-bot · Go HTTP client · fingerprint database.
 `tlsprint` describes **what a TLS client really puts on the wire** — ciphers,
 extension order, groups, signature algorithms, HTTP/2 settings, header order —
 as typed, JSON-friendly, engine-independent data. It computes JA3/JA4, parses
-and builds raw ClientHello bytes, ships a curated registry of 47 real client
+and builds raw ClientHello bytes, ships a curated registry of 51 real client
 fingerprints, and drives real impersonated connections through uTLS with a
 **byte-exact HTTP/2 level**, verified live against `tls.peet.ws`.
 
@@ -148,7 +148,7 @@ fmt.Println(ja3.Compute(ch), ja4.Compute(ch))
   priority reproduce the real browser (verified on `tls.peet.ws`).
 - **Bidirectional codecs.** Not just compute JA3/JA4 — `hello` parses and
   marshals ClientHello bytes byte-for-byte, preserving unknown extensions.
-- **50 curated, verifiable presets** (Chrome incl. 155, Firefox, Safari, Edge,
+- **51 curated, verifiable presets** (Chrome incl. 156, Firefox, Safari, Edge,
   Opera, curl, OkHttp, WeChat, …). Every preset passes an invariant test that
   its lists re-derive the JA3 of its source capture.
 - **curl_cffi-style API** — pass the fingerprint directly on the call — plus a
@@ -258,7 +258,7 @@ the two: a **standard data layer** plus **optional, byte-exact engines**.
 | **JA1/JA3** | via random hello | string | string | **bidirectional + hash** |
 | **JA4** | partial | partial | often missing | **spec-compliant, tested against its canonical vector** |
 | **HTTP/2 SETTINGS/priority/header-order fidelity** | n/a | Go default (not byte-exact) | C++/fork | **byte-exact (forked `x/net/http2`)** |
-| **Preset registry** | hardcoded parrots | hardcoded | large generated | **50 curated + verifiable (JA3 invariant) + reproducible pipeline** |
+| **Preset registry** | hardcoded parrots | hardcoded | large generated | **51 curated + verifiable (JA3 invariant) + reproducible pipeline** |
 | **API ergonomics** | low-level | `NewClient().SetBrowser` | curl_cffi | **curl_cffi-style + fluent builder** |
 
 **Why choose tlsprint:**
@@ -305,6 +305,7 @@ re-derive the JA3 of the source. Look one up by name (`"chrome-152"`,
 | `TLS_CHROME_153_MACOS_10_15_7` | chrome | macos | 153 |
 | `TLS_CHROME_154_MACOS_10_15_7` | chrome | macos | 154 |
 | `TLS_CHROME_155_MACOS_10_15_7` | chrome | macos | 155 |
+| `TLS_CHROME_156_MACOS_10_15_7` | chrome | macos | 156 |
 | `TLS_FIREFOX_115` | firefox | windows | 115 |
 | `TLS_FIREFOX_126` | firefox | windows | 126 |
 | `TLS_FIREFOX_135` | firefox | windows | 135 |
@@ -394,7 +395,7 @@ All packages pass `go vet` and golden-vector tests; the invariant
 
 ## 🗺️ Roadmap / limits
 
-- **Preset coverage** is 50 curated entries; the pipeline can import hundreds
+- **Preset coverage** is 51 curated entries; the pipeline can import hundreds
   more (incl. mobile variants) on demand.
 - **Active JS challenges** (Akamai sensor, Cloudflare managed challenge) need
   a browser/solver layer — out of scope for an HTTP client.

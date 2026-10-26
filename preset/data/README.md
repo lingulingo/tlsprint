@@ -55,13 +55,14 @@ override derived metadata. Add hand-authored presets by appending entries to
 schema in `preset/preset.go`).
 
 > **Warning:** step 2 rewrites `registry.json` from scratch. Presets that are
-> not on `ALLOWLIST.txt` — including the hand-authored `TLS_CHROME_153_*` and
-> `TLS_CHROME_154_*` captures below — are **dropped** when you re-run it. Keep
-> a copy of any hand-authored entries, or add them to `ALLOWLIST.txt` once the
-> reference dump carries them.
+> not on `ALLOWLIST.txt` — including the hand-authored `TLS_CHROME_153_*`
+> through `TLS_CHROME_156_*` captures below — are **dropped** when you re-run
+> it. Keep a copy of any hand-authored entries, or add them to `ALLOWLIST.txt`
+> once the reference dump carries them.
 >
 > Hand-authored captures currently in the registry: `TLS_CHROME_152_*`,
-> `TLS_CHROME_153_*`, `TLS_CHROME_154_*` (all from `tls.peet.ws` snapshots).
+> `TLS_CHROME_153_*`, `TLS_CHROME_154_*`, `TLS_CHROME_155_*`,
+> `TLS_CHROME_156_*` (all from `tls.peet.ws` snapshots).
 
 ## Verification
 

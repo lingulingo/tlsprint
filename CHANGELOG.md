@@ -3,7 +3,29 @@
 All notable changes to tlsprint are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [v1.0.6] - 2026-10-26
+
+模块标签：`v1.0.6`（根模块，含 preset 数据）、`utls/v1.0.3`、`client/v1.0.6`。
+`utls` 与 `client` 本次只上抬了对根模块的依赖（`v1.0.5` → `v1.0.6`）——预设数据内嵌在
+根模块里，不这样抬，它们的使用者拿到的仍是旧的 50 个预设。
+
+### Added
+
+- **Preset**：新增 `TLS_CHROME_156_MACOS_10_15_7`（来自真实 Chrome 156.0.8078.48 的
+  `tls.peet.ws` 抓包），注册表 50 → 51 个，`Lookup("chrome")` 现解析到 156。已由 JA3
+  不变量测试和 `utls` 线上字节级回环测试覆盖。
+
+  传输层**完全没变**——逐项与 155 比对一致：15 个 cipher、17 个扩展的**集合**
+  （顺序仍为每次连线的随机排列，两次抓包顺序不同）、`supported_groups`/
+  `supported_versions`/签名算法（含 ML-DSA `0x0904`/`0x0905`/`0x0906`）、JA4
+  （`t13d1517h2_8daaf6152771_cb7bf5808d99`）、Akamai HTTP/2 指纹
+  （`1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p`）、13 个请求头的**顺序**，
+  以及 `51764` 载荷（186 字节 / 28 条目，与 155 **逐字节相同**）。
+
+  **实质变化只在请求头的值**：`sec-ch-ua` 的 grease 品牌轮换为
+  `"Not:A-Brand";v="8"`（156 的品牌顺序也变成 `Not:A-Brand` → `Chromium` →
+  `Google Chrome`，与 155 的 `Google Chrome` 打头不同），UA 版本号 155 → 156。
+  `Accept` 里的 `image/jxl` 自 155 起已在，本次未再变化。
 
 ### Fixed
 
@@ -11,12 +33,12 @@ All notable changes to tlsprint are documented here. This project adheres to
   - 「发布说明」原称四个模块路径"均为占位符"、要求读者替换成自己的命名空间、并给出
     `utls/v0.1.0` 这类标签——而模块早已发布到 `v1.0.5`。现改为列出当前真实标签，并
     补充两条发布要点（预设内嵌于根模块故须同步抬子模块依赖；`git push` 不会推标签）。
-  - 亮点与对比表里的预设数量 `46` → `50`。
+  - 亮点与对比表里的预设数量改为当前真实值（`51`）。
   - 「仓库结构」原称"三个 Go module"且表里漏了 `http2`，改为四个并补上该行。
   - 安装段不再表述"发布到自己的命名空间"。
 
-  注意：pkg.go.dev 渲染的是**已打标签版本**里的 README，所以这些修正要在下一个标签
-  之后才会反映到 pkg.go.dev 上。
+  pkg.go.dev 渲染的是**已打标签版本**里的 README，所以这些修正要随本标签
+  （`v1.0.6`）之后才会反映到 pkg.go.dev 上。
 
 ## [v1.0.5] - 2026-10-09
 

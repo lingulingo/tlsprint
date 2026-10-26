@@ -5,9 +5,9 @@ go 1.24.0
 require (
 	github.com/andybalholm/brotli v1.0.6
 	github.com/klauspost/compress v1.17.4
-	github.com/lingulingo/tlsprint v1.0.5
+	github.com/lingulingo/tlsprint v1.0.6
 	github.com/lingulingo/tlsprint/http2 v1.0.1
-	github.com/lingulingo/tlsprint/utls v1.0.2
+	github.com/lingulingo/tlsprint/utls v1.0.3
 )
 
 require (

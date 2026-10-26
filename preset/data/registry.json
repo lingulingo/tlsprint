@@ -1,5 +1,5 @@
 {
-  "source": "curated client fingerprints; includes Chrome 152/153/154/155 captures from tls.peet.ws",
+  "source": "curated client fingerprints; includes Chrome 152/153/154/155/156 captures from tls.peet.ws",
   "presets": [
     {
       "key": "TLS_CHARLES_5_0_1_CHROME_142",
@@ -2528,6 +2528,157 @@
           "Sec-Ch-Ua-Platform": "\"macOS\"",
           "Upgrade-Insecure-Requests": "1",
           "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "Sec-Fetch-Site": "none",
+          "Sec-Fetch-Mode": "navigate",
+          "Sec-Fetch-User": "?1",
+          "Sec-Fetch-Dest": "document",
+          "Accept-Encoding": "gzip, deflate, br, zstd",
+          "Accept-Language": "zh-CN,zh;q=0.9",
+          "Priority": "u=0, i"
+        }
+      }
+    },
+    {
+      "key": "TLS_CHROME_156_MACOS_10_15_7",
+      "id": "tls.peet.ws-chrome-156-macos",
+      "product": "chrome",
+      "platform": "macos",
+      "version": "156",
+      "description": "Chrome 156 macOS, captured from a tls.peet.ws fingerprint snapshot",
+      "tls": {
+        "legacy_version": 771,
+        "cipher_suites": [
+          4865,
+          4866,
+          4867,
+          49195,
+          49199,
+          49196,
+          49200,
+          52393,
+          52392,
+          49171,
+          49172,
+          156,
+          157,
+          47,
+          53
+        ],
+        "extensions": [
+          18,
+          5,
+          10,
+          51764,
+          45,
+          65281,
+          0,
+          13,
+          51,
+          23,
+          65037,
+          16,
+          27,
+          35,
+          17613,
+          11,
+          43,
+          41
+        ],
+        "supported_groups": [
+          2570,
+          4588,
+          29,
+          23,
+          24
+        ],
+        "ec_point_formats": [
+          0
+        ],
+        "supported_versions": [
+          2570,
+          772,
+          771
+        ],
+        "signature_algorithms": [
+          2570,
+          2308,
+          2309,
+          2310,
+          1027,
+          2052,
+          1025,
+          1283,
+          2053,
+          1281,
+          2054,
+          1537
+        ],
+        "psk_key_exchange_modes": [
+          1
+        ],
+        "cert_compression": [
+          2
+        ],
+        "ja3": "771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,18-5-10-51764-45-65281-0-13-51-23-65037-16-27-35-17613-11-43-41,4588-29-23-24,0",
+        "extra_extensions": {
+          "51764": "ALgFgt8TAgEFgt8TAgYFgt8TAg0Fgt8TAg4Fgt8TAg8Fgt8TAhIFgt8TAhMFgt8TAhQIg5pkjJstAQcIg5pkjJstAQgIg5pkjJstAQkIg5pkjJstAQoIg5pkjJstAQsIg5pkjJstAQwIg5pkjJstAQ0Ig5pkjJstARIIg5pkjJstARME1nkJAQTWeQkEBNZ5CQUE1nkJBgTWeQkHBNZ5CQgE1nkJCgTWeQkLBNZ5CQwE1nkJDQTWeQkP"
+        }
+      },
+      "http2": {
+        "settings": [
+          {
+            "id": 1,
+            "value": 65536
+          },
+          {
+            "id": 2,
+            "value": 0
+          },
+          {
+            "id": 4,
+            "value": 6291456
+          },
+          {
+            "id": 6,
+            "value": 262144
+          }
+        ],
+        "window_update": 15663105,
+        "pseudo_header_order": [
+          ":method",
+          ":authority",
+          ":scheme",
+          ":path"
+        ],
+        "header_priority": {
+          "stream_dep": 0,
+          "exclusive": true,
+          "weight": 255
+        }
+      },
+      "headers": {
+        "order": [
+          "sec-ch-ua",
+          "sec-ch-ua-mobile",
+          "sec-ch-ua-platform",
+          "upgrade-insecure-requests",
+          "user-agent",
+          "accept",
+          "sec-fetch-site",
+          "sec-fetch-mode",
+          "sec-fetch-user",
+          "sec-fetch-dest",
+          "accept-encoding",
+          "accept-language",
+          "priority"
+        ],
+        "values": {
+          "Sec-Ch-Ua": "\"Not:A-Brand\";v=\"8\", \"Chromium\";v=\"156\", \"Google Chrome\";v=\"156\"",
+          "Sec-Ch-Ua-Mobile": "?0",
+          "Sec-Ch-Ua-Platform": "\"macOS\"",
+          "Upgrade-Insecure-Requests": "1",
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/jxl,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
           "Sec-Fetch-Site": "none",
           "Sec-Fetch-Mode": "navigate",
