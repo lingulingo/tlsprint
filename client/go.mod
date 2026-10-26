@@ -1,6 +1,6 @@
 module github.com/lingulingo/tlsprint/client
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/andybalholm/brotli v1.0.6
@@ -12,10 +12,10 @@ require (
 
 require (
 	github.com/refraction-networking/utls v1.8.2 // indirect
-	golang.org/x/crypto v0.47.0 // indirect
-	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/net v0.54.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 )
 
 replace github.com/lingulingo/tlsprint => ../
