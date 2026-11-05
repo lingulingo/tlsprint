@@ -208,7 +208,14 @@ Client methods (chainable): `Impersonate`/`SetPreset`/`SetBrowser`,
 `SetRandomBrowser`, `Preset`, `R`, `Get/Post/Put/Patch/Delete/Head/Options/Do`,
 `SetTimeout`, `SetProxy`, `SetInsecureSkipVerify`, `SetRootCAs`, `SetBaseURL`,
 `SetRedirects`, `SetHeader(s)`, `Enable/DisableCookieJar`,
-`ForceHTTP1`, `UseHTTP2`, `UseAutoProtocol`.
+`ForceHTTP1`, `UseHTTP2`, `UseAutoProtocol`, `SetPermuteExtensions`.
+
+`SetPermuteExtensions(true)` (or `WithPermuteExtensions()`) shuffles the
+ClientHello extension order on every new connection, which is what real Chrome
+does. It is off by default so that the wire JA3 keeps equalling the preset's
+JA3; enabling it deliberately breaks that equality while leaving JA4 unchanged
+(JA4 sorts extensions, and the set does not change). Wire-order constraints
+still hold: GREASE positions, padding last, `pre_shared_key` last.
 
 ### Response methods (`client.Response`)
 

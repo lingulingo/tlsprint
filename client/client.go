@@ -24,6 +24,10 @@
 //   - By default HTTP/2 is attempted first (when the preset is HTTP/2 aware)
 //     with automatic fallback to HTTP/1.1 when the server does not support
 //     it. Use ForceHTTP1() or UseHTTP2() to pin a protocol.
+//   - Extension order is taken from the preset by default, so the wire JA3
+//     equals the preset's JA3. SetPermuteExtensions(true) instead shuffles it
+//     on every new connection, which is what real Chrome does; JA4 is
+//     unaffected either way.
 //   - Header *values* and ordering follow the preset's header profile; the
 //     forked tlsprint/http2 transport reproduces the exact SETTINGS order,
 //     the initial WINDOW_UPDATE, the request pseudo/header order and the
@@ -62,6 +66,7 @@ type Client struct {
 	noRedirect  bool
 	redirectMax int // 0 = Go default policy
 	withJar     bool
+	permute     bool
 
 	// defaultHeaders are applied to every request (canonical keys).
 	defaultHeaders http.Header
@@ -125,6 +130,12 @@ func WithRootCAs(pool *x509.CertPool) Option {
 // WithPreset preselects the fingerprint preset at construction time.
 func WithPreset(p *preset.Preset) Option {
 	return func(c *Client) { c.preset = p }
+}
+
+// WithPermuteExtensions enables extension-order randomization for every new
+// connection; see Client.SetPermuteExtensions.
+func WithPermuteExtensions() Option {
+	return func(c *Client) { c.permute = true }
 }
 
 // SetBrowser chooses the fingerprint preset. nameOrPreset may be a preset
@@ -312,6 +323,28 @@ func (c *Client) SetHeaders(headers map[string]string) *Client {
 // header ordering, so this is kept for API compatibility and future
 // HTTP/2-exact transport work; it does not reorder wire headers today.
 func (c *Client) SetHeaderOrder(_ ...string) *Client {
+	return c
+}
+
+// SetPermuteExtensions controls extension-order randomization (curl_cffi's
+// `permute_extensions`, and what Chrome itself does).
+//
+// When true, every new TLS connection shuffles the order of the reorderable
+// ClientHello extensions instead of using the preset's captured order. That
+// matches what modern Chromium actually does — each connection gets a fresh
+// permutation — and stops JA3 from being a stable per-client identifier.
+// Wire-order constraints are preserved (GREASE positions, padding last,
+// pre_shared_key last).
+//
+// Off by default, because it intentionally breaks the invariant that the wire
+// JA3 equals the preset's JA3. JA4 is unaffected either way: it sorts
+// extensions, so the fingerprint it reports is identical. The setting applies
+// to connections opened afterwards; pooled connections keep their original
+// ClientHello.
+func (c *Client) SetPermuteExtensions(on bool) *Client {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.permute = on
 	return c
 }
 

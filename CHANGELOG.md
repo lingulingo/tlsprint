@@ -3,6 +3,45 @@
 All notable changes to tlsprint are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+发版时的模块标签：`utls/v1.1.0`、`client/v1.1.0`（根模块的预设数据没变，不需要发版；
+`client` 需要把对 `utls` 的依赖抬到 `v1.1.0`，因为它用到了新的 `PermuteExtensions`）。
+
+### Added
+
+- **`utls.Options.PermuteExtensions`**：ClientHello 扩展顺序随机化，对应 curl_cffi 的
+  `permute_extensions`，也是 Chrome 的真实行为——它**每条连接都重排扩展顺序**，所以
+  同一个 Chrome 的 JA3 每次握手都不同。
+
+  默认关闭：预设记录的是一条抓包时的确定顺序，保持原样才能守住「线上 JA3 == preset
+  的 JA3」这条不变量。打开后**有意放弃**这条等式——JA3 变成排列族里的随机成员，
+  而 JA4 保持完全一致（它按扩展集合排序，集合没变）。线序约束始终满足：GREASE 位置
+  不动、`padding` 仍在末尾、`pre_shared_key` 仍在最后。
+
+- **`client`**：`SetPermuteExtensions(bool)` 与 `WithPermuteExtensions()`，按连接生效
+  （连接池里已有连接不受影响）。
+
+### Fixed
+
+- **`client.SetBaseURL` 完全无效**：`Request.baseURL` 字段存在，但 `newRequest` 从未从
+  Client 快照过去，于是所有相对 URL 都以空前缀解析、报
+  `unsupported protocol scheme ""`。现在在 `R()` 持锁时快照，并发 `SetBaseURL` 仍是安全的。
+  原有的 `TestClientConcurrentSetBaseURL` 只跑竞态、不断言效果，所以一直没发现。
+- **多个 `Cookie()` 会互相顶掉**：每次 `SetCookie` 都独立 `Add` 一个 `Cookie` 头，
+  而服务端/代理通常只读第一个，后面的 cookie 实际丢失。现在累加进同一个头
+  （`a=1; b=2`）。
+
+### Testing
+
+- **`client` 覆盖率 57.7% → 89.5%**，新增约 900 行测试，补齐了此前 0% 的公开 API
+  （包级与 Client 级动词、全部 `ReqOption`/`Request` 构造器、`Result`/`Context`/
+  `Timeout`、路径参数、表单与 multipart、四种 Content-Encoding 及多段链式解码、
+  TLS 校验三态、`Response` 全部访问器、错误分支）。
+- **`utls`** 新增 `permute_test.go`：约束性质测试（200 轮）、扩展集合不变、
+  `JA4` 不变而 `JA3` 必变，以及**真实握手的字节级验证**（6 条连接的 JA3 互不相同、
+  JA4 完全一致）。
+
 ## [v1.0.6] - 2026-10-26
 
 模块标签：`v1.0.6`（根模块，含 preset 数据）、`utls/v1.0.3`、`client/v1.0.6`。

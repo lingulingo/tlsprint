@@ -26,6 +26,7 @@ package utls
 import (
 	"crypto/rand"
 	"fmt"
+	"math/big"
 
 	tlsprint "github.com/lingulingo/tlsprint"
 	"github.com/lingulingo/tlsprint/iana"
@@ -70,6 +71,23 @@ type Options struct {
 	// extension on a fresh handshake is protocol-invalid. Dropping it
 	// reproduces what the client actually sends without a session.
 	IncludeSessionExtensions bool
+
+	// PermuteExtensions randomizes the order of the reorderable extensions on
+	// every ClientHello, which is what modern Chromium clients do: they
+	// shuffle extension order per connection, so the JA3 of one Chrome session
+	// is only one member of a large family.
+	//
+	// Off by default. A tlsprint preset records one concrete captured order,
+	// and keeping it makes the wire JA3 equal the preset's JA3 — the property
+	// the preset invariant tests assert. Turning this on deliberately gives up
+	// that equality: JA3 becomes a random member of the permutation family,
+	// while JA4 (which sorts extensions) stays identical to the preset's,
+	// because the extension *set* does not change.
+	//
+	// Wire-order constraints are preserved regardless: GREASE extension types
+	// keep their positions, padding stays last, and pre_shared_key/early_data
+	// (when IncludeSessionExtensions keeps them) stay at the tail.
+	PermuteExtensions bool
 }
 
 // NewOptions returns options derived from the profile: GREASE follows the
@@ -125,14 +143,32 @@ func FromProfile(p *tlsprint.TLSProfile, opts *Options) (*utls.ClientHelloSpec, 
 	// else the profile lists is emitted — extension types with a dedicated
 	// uTLS instance (incl. ALPS and SCT) via that instance, and unknown types
 	// via their raw ExtraExtensions payload when present.
-	padIdx := -1
-	var exts []utls.TLSExtension
+	// Order the profile's extension types first (optionally permuted the way
+	// Chromium does), then instantiate them in that order. Building instances
+	// after ordering keeps the permutation independent of how each extension
+	// is materialized.
+	types := make([]uint16, 0, len(p.Extensions))
 	for _, typ := range p.Extensions {
 		if iana.IsGrease(typ) {
-			exts = append(exts, &utls.UtlsGREASEExtension{})
+			types = append(types, typ)
 			continue
 		}
 		if !opts.IncludeSessionExtensions && (typ == iana.ExtPreSharedKey || typ == iana.ExtEarlyData) {
+			continue
+		}
+		types = append(types, typ)
+	}
+	if opts.PermuteExtensions {
+		if err := permuteTypes(types); err != nil {
+			return nil, err
+		}
+	}
+
+	padIdx := -1
+	var exts []utls.TLSExtension
+	for _, typ := range types {
+		if iana.IsGrease(typ) {
+			exts = append(exts, &utls.UtlsGREASEExtension{})
 			continue
 		}
 		if typ == iana.ExtPadding {
@@ -324,6 +360,63 @@ func nextGrease() uint16 {
 		return g
 	}
 	return iana.GreaseMarker
+}
+
+// permuteTypes randomizes the position of the reorderable extension types in
+// place, keeping the wire-order constraints that servers (and RFC 8446)
+// enforce:
+//
+//   - GREASE extension types keep their positions — Chromium sends one first
+//     and one immediately before padding, and that placement is itself part of
+//     the fingerprint;
+//   - padding stays last (RFC 7685);
+//   - pre_shared_key and early_data keep their tail position (RFC 8446
+//     §4.2.11 requires pre_shared_key to be the last extension).
+//
+// Everything else may legally appear anywhere, so those entries are the ones
+// shuffled. A list with fewer than two such entries is left alone.
+func permuteTypes(types []uint16) error {
+	idx := make([]int, 0, len(types))
+	for i, typ := range types {
+		switch {
+		case iana.IsGrease(typ),
+			typ == iana.ExtPadding,
+			typ == iana.ExtPreSharedKey,
+			typ == iana.ExtEarlyData:
+			continue
+		}
+		idx = append(idx, i)
+	}
+	if len(idx) < 2 {
+		return nil
+	}
+
+	// Fisher-Yates over the reorderable slots only: the shuffled values are
+	// dealt back into exactly those slots, so pinned entries never move.
+	vals := make([]uint16, len(idx))
+	for i, at := range idx {
+		vals[i] = types[at]
+	}
+	for i := len(vals) - 1; i > 0; i-- {
+		j, err := randIndex(i + 1)
+		if err != nil {
+			return err
+		}
+		vals[i], vals[j] = vals[j], vals[i]
+	}
+	for i, at := range idx {
+		types[at] = vals[i]
+	}
+	return nil
+}
+
+// randIndex returns a uniformly random integer in [0, n).
+func randIndex(n int) (int, error) {
+	v, err := rand.Int(rand.Reader, big.NewInt(int64(n)))
+	if err != nil {
+		return 0, err
+	}
+	return int(v.Int64()), nil
 }
 
 func toSigSchemes(algs []uint16) []utls.SignatureScheme {

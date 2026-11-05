@@ -33,8 +33,11 @@ type Request struct {
 }
 
 func newRequest(c *Client) *Request {
+	// baseURL is snapshotted here (R holds c.mu) so a concurrent SetBaseURL
+	// cannot change the prefix halfway through building a request.
 	r := &Request{
 		client:  c,
+		baseURL: c.baseURL,
 		headers: make(http.Header),
 		query:   make(url.Values),
 		ctx:     context.Background(),
@@ -76,9 +79,16 @@ func (r *Request) SetAuthToken(token string) *Request {
 	return r
 }
 
-// SetCookie adds a cookie header value.
+// SetCookie adds a cookie. Repeated calls accumulate into one Cookie header
+// ("a=1; b=2") instead of emitting several headers, because servers and
+// proxies only read the first Cookie header of a request.
 func (r *Request) SetCookie(name, value string) *Request {
-	r.headers.Add("Cookie", name+"="+value)
+	kv := name + "=" + value
+	if prior := r.headers.Get("Cookie"); prior != "" {
+		r.headers.Set("Cookie", prior+"; "+kv)
+		return r
+	}
+	r.headers.Set("Cookie", kv)
 	return r
 }
 

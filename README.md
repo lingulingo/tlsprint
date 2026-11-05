@@ -143,8 +143,28 @@ Client 方法（`Set*` 均可链式调用，并发安全）：
 | `SetRedirects(max)` | 0 = 不跟随；>0 = 最多跟随 n 次；<0 = Go 默认 |
 | `SetHeader(k, v)` / `SetHeaders(map)` | 每次请求的默认头 |
 | `SetHeaderOrder(keys...)` | 预留：记录头顺序（net/http 暂不暴露写序，见路线图） |
+| `SetPermuteExtensions(bool)` | **扩展顺序随机化**：每条新连接都打乱可重排的扩展（Chrome 的真实行为）。默认关闭，见下方说明 |
 | `EnableCookieJar()` / `DisableCookieJar()` | 自动 Cookie 管理 |
 | `ForceHTTP1()` / `UseHTTP2()` / `UseAutoProtocol()` | 固定 HTTP/1.1、固定 HTTP/2、自动（默认） |
+
+#### 扩展顺序随机化（`permute_extensions`）
+
+真实 Chrome **每条连接都会重排扩展顺序**，所以同一个 Chrome 的 JA3 每次都不一样。
+tlsprint 的 preset 记录的是抓包那一刻的顺序，默认照原样发送——这样才能保持
+「线上 JA3 == preset 的 JA3」这条不变量。想要更贴近真实浏览器时打开：
+
+```go
+c := tlsclient.NewClient(tlsclient.Impersonate("chrome-156"))
+c.SetPermuteExtensions(true)          // 或 NewClient(WithPermuteExtensions())
+```
+
+行为与取舍：
+
+- 每次**新建连接**重新排列；连接池里已有连接保持原样。
+- 线序约束始终满足：GREASE 位置不动、`padding` 仍在末尾、`pre_shared_key` 仍在最后。
+- 打开后 **JA3 会变**（这正是目的：不再成为跨连接的稳定标识），
+  而 **JA4 完全不变**（它按扩展集合排序，集合没变）。测试同时断言了这两件事，
+  包括一次真实握手的字节级验证。
 
 Request 构建器方法（`c.R()` 返回 `*Request`，链式，一次性使用）：
 

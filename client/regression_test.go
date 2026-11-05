@@ -146,3 +146,65 @@ func TestProxyUsedForPlainHTTPTarget(t *testing.T) {
 		t.Fatal("proxy was never contacted")
 	}
 }
+
+// TestSetBaseURLReachesRequests guards against Client.baseURL never being
+// snapshotted into the Request: relative URLs used to be resolved with an empty
+// prefix, failing with `unsupported protocol scheme ""`.
+func TestSetBaseURLReachesRequests(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "path=%s", r.URL.Path)
+	}))
+	defer srv.Close()
+
+	c := NewClient().SetBaseURL(srv.URL)
+	defer c.Close()
+
+	// The fluent builder and the direct verbs must both honour the prefix.
+	resp, err := c.R().Get("/from-builder")
+	if err != nil {
+		t.Fatalf("builder Get with base URL: %v", err)
+	}
+	if got := resp.String(); got != "path=/from-builder" {
+		t.Fatalf("builder response = %q", got)
+	}
+
+	resp, err = c.Get("/from-verb")
+	if err != nil {
+		t.Fatalf("direct Get with base URL: %v", err)
+	}
+	if got := resp.String(); got != "path=/from-verb" {
+		t.Fatalf("direct response = %q", got)
+	}
+
+	// An absolute URL is still used as-is.
+	resp, err = c.Get(srv.URL + "/absolute")
+	if err != nil {
+		t.Fatalf("absolute Get: %v", err)
+	}
+	if got := resp.String(); got != "path=/absolute" {
+		t.Fatalf("absolute response = %q", got)
+	}
+}
+
+// TestSetCookieAccumulates guards against each SetCookie emitting its own
+// Cookie header: servers only read the first one, so additional cookies were
+// silently dropped.
+func TestSetCookieAccumulates(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "%d|%s", len(r.Header.Values("Cookie")), strings.Join(r.Header.Values("Cookie"), " / "))
+	}))
+	defer srv.Close()
+
+	c := NewClient()
+	defer c.Close()
+	resp, err := c.Get(srv.URL+"/c",
+		Cookie("a", "1"),
+		Cookie("b", "2"),
+		Cookie("c", "3"))
+	if err != nil {
+		t.Fatalf("Get: %v", err)
+	}
+	if got, want := resp.String(), "1|a=1; b=2; c=3"; got != want {
+		t.Fatalf("cookie headers = %q, want %q", got, want)
+	}
+}

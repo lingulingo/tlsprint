@@ -40,6 +40,7 @@ type dialSnapshot struct {
 	forceH1   bool // explicit ForceHTTP1
 	forceH2   bool // explicit UseHTTP2
 	h2Capable bool // preset carries HTTP/2 behaviour
+	permute   bool // shuffle extension order on every new connection
 }
 
 type roundTripper struct {
@@ -82,6 +83,7 @@ func (rt *roundTripper) snapshot() dialSnapshot {
 		insecure: c.insecure,
 		rootCAs:  c.rootCAs,
 		proxy:    c.proxyURL,
+		permute:  c.permute,
 	}
 	switch c.forceProto {
 	case "h1":
@@ -254,6 +256,7 @@ func (rt *roundTripper) dial(ctx context.Context, network, addr string, snap dia
 	}
 
 	specOpts := tlsutls.NewOptions(&snap.preset.Profile)
+	specOpts.PermuteExtensions = snap.permute
 	if alpn != nil {
 		specOpts.ALPN = alpn
 	}
