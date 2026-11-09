@@ -3,7 +3,31 @@
 All notable changes to tlsprint are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [v1.0.7] - 2026-11-09
+
+模块标签：`v1.0.7`（根模块，含 preset 数据）、`utls/v1.1.1`、`client/v1.1.1`。
+子模块本次只上抬对根模块的依赖（`v1.0.6` → `v1.0.7`，`client` 另把 `utls` 抬到
+`v1.1.1`）——预设数据内嵌在根模块里，不抬的话它们的使用者拿到的仍是旧的 51 个预设。
+
+### Added
+
+- **Preset**：新增 `TLS_CHROME_157_MACOS_10_15_7`（来自真实 Chrome 157.0.8103.39 的
+  `tls.peet.ws` 抓包，两次独立抓包交叉确认），注册表 51 → 52 个，`Lookup("chrome")`
+  现解析到 157。已由 JA3 不变量测试和 `utls` 线上字节级回环测试覆盖。
+
+  传输层**连续第三版没变**——逐项与 156 比对一致：15 个 cipher、17 个扩展的**集合**
+  （顺序仍为每次连线的随机排列，两次抓包顺序不同）、`supported_groups`/
+  `supported_versions`/签名算法（含 ML-DSA `0x0904`/`0x0905`/`0x0906`）、JA4
+  （`t13d1517h2_8daaf6152771_cb7bf5808d99`）、Akamai HTTP/2 指纹
+  （`1:65536;2:0;4:6291456;6:262144|15663105|0|m,a,s,p`）、13 个请求头的**顺序**，
+  以及 `51764` 载荷（186 字节 / 28 条目，与 155/156 **逐字节相同**）。
+
+  **实质变化只在请求头的值**：`sec-ch-ua` 的 grease 品牌轮换为
+  `"Not-A.Brand";v="99"`（157 的品牌顺序又变了：`Not-A.Brand` → `Google Chrome` →
+  `Chromium`），UA 版本号 156 → 157。`Accept` 里的 `image/jxl` 自 155 起已在，
+  本次未再变化。
+
+## [utls/v1.1.0 + client/v1.1.0] - 2026-11-06
 
 发版时的模块标签：`utls/v1.1.0`、`client/v1.1.0`（根模块的预设数据没变，不需要发版；
 `client` 需要把对 `utls` 的依赖抬到 `v1.1.0`，因为它用到了新的 `PermuteExtensions`）。
